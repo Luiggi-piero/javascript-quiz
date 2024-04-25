@@ -34,10 +34,22 @@ export const useQuestionsStore = create<State>()(persist((set, get) => {
         currentQuestion: 0, // posicion del array de questions
 
         fetchQuestions: async (limit: number) => {
-            const res = await fetch('http://localhost:5173/data.json')
+            console.log(import.meta.env.VITE_PUBLIC_X_MASTER_KEY);
+            // const res = await fetch('http://localhost:5173/data.json')
+            const res = await fetch('https://api.jsonbin.io/v3/b/662a9ed8ad19ca34f85fb920', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Master-Key': import.meta.env.VITE_PUBLIC_X_MASTER_KEY,
+                    'X-Access-Key': '$2a$10$nWVnbgremH0e6lU.Ttu3SuErmjhX3YLQPGoC/wFUjnXipixpcFPRy'
+                }
+            })
+            
+            if(!res.ok) throw new Error('Hable con el administrador')
+
             const json = await res.json()
 
-            const questions = json.sort(() => Math.random() - 0.5).slice(0, limit)
+            const questions = json.record.sort(() => Math.random() - 0.5).slice(0, limit)
             set({ questions })
         },
 
@@ -87,7 +99,7 @@ export const useQuestionsStore = create<State>()(persist((set, get) => {
         }
     }
 }, {
-    // nombre del persist
+    // nombre del persist de este store
     // por defecto lo guarda en localstorage
     name: 'questions'
 }))
